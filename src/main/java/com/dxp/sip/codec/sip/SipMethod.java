@@ -10,6 +10,12 @@ import static io.netty.util.internal.ObjectUtil.checkNotNull;
  * @see io.netty.handler.codec.http.HttpMethod
  */
 public class SipMethod implements Comparable<SipMethod> {
+
+    /**
+     * BAD. 自定义的一个错误的请求头, 用于标识不能解析当前的sip请求.
+     */
+    public static final SipMethod BAD = new SipMethod("BAD");
+
     /**
      * OPTIONS
      */

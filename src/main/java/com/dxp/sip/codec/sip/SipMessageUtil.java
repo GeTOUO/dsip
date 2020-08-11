@@ -8,9 +8,9 @@ import java.util.Map;
  * @author carzy
  * @date 2020/8/11
  */
-final class SipMessageUtil {
+public final class SipMessageUtil {
 
-    static StringBuilder appendFullRequest(StringBuilder buf, FullSipRequest req) {
+    public static StringBuilder appendFullRequest(StringBuilder buf, FullSipRequest req) {
         appendFullCommon(buf, req);
         appendInitialLine(buf, req);
         appendHeaders(buf, req.headers());
@@ -18,7 +18,7 @@ final class SipMessageUtil {
         return buf;
     }
 
-    static StringBuilder appendFullResponse(StringBuilder buf, FullSipResponse res) {
+    public static StringBuilder appendFullResponse(StringBuilder buf, FullSipResponse res) {
         appendFullCommon(buf, res);
         appendInitialLine(buf, res);
         appendHeaders(buf, res.headers());
@@ -26,7 +26,7 @@ final class SipMessageUtil {
         return buf;
     }
 
-    static StringBuilder appendRequest(StringBuilder buf, SipRequest req) {
+    public static StringBuilder appendRequest(StringBuilder buf, SipRequest req) {
         appendCommon(buf, req);
         appendInitialLine(buf, req);
         appendHeaders(buf, req.headers());
@@ -34,7 +34,7 @@ final class SipMessageUtil {
         return buf;
     }
 
-    static StringBuilder appendResponse(StringBuilder buf, SipResponse res) {
+    public static StringBuilder appendResponse(StringBuilder buf, SipResponse res) {
         appendCommon(buf, res);
         appendInitialLine(buf, res);
         appendHeaders(buf, res.headers());

@@ -451,11 +451,13 @@ public class SipObjectDecoder extends ByteToMessageDecoder {
                     SipMethod.valueOf(initialLine[0]),
                     initialLine[1],
                     validateHeaders);
-        } else {
+        } else if (SipVersion.SIP_2_0_STRING.equalsIgnoreCase(initialLine[0])) {
             decodingRequest = false;
             return new DefaultSipResponse(
                     SipVersion.valueOf(initialLine[0]),
                     SipResponseStatus.valueOf(Integer.parseInt(initialLine[1]), initialLine[2]), validateHeaders);
+        } else {
+            return createInvalidMessage();
         }
     }
 
@@ -464,7 +466,7 @@ public class SipObjectDecoder extends ByteToMessageDecoder {
      */
     protected SipMessage createInvalidMessage() {
         if (decodingRequest) {
-            return new DefaultFullSipRequest(SipVersion.SIP_2_0, SipMethod.NOTIFY, "/bad-request", validateHeaders);
+            return new DefaultFullSipRequest(SipVersion.SIP_2_0, SipMethod.BAD, "/bad-request", validateHeaders);
         } else {
             return new DefaultFullSipResponse(SipVersion.SIP_2_0, UNKNOWN_STATUS, validateHeaders);
         }

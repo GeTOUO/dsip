@@ -19,6 +19,10 @@ public class DefaultFullSipResponse extends DefaultSipResponse implements FullSi
      */
     private int hash;
 
+    public DefaultFullSipResponse(SipResponseStatus status) {
+        this(SipVersion.SIP_2_0, status);
+    }
+
     public DefaultFullSipResponse(SipVersion version, SipResponseStatus status) {
         this(version, status, Unpooled.buffer(0));
     }
