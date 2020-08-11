@@ -35,7 +35,7 @@ public class Application {
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-        LoggingHandler loggingHandler = new LoggingHandler(LogLevel.DEBUG);
+        LoggingHandler loggingHandler = new LoggingHandler(LogLevel.INFO);
 
         b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
