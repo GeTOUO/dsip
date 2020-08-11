@@ -99,14 +99,14 @@ public class SipObjectDecoder extends ByteToMessageDecoder {
      * {@code maxInitialLineLength (4096}}, {@code maxHeaderSize (8192)}, and
      * {@code maxChunkSize (8192)}.
      */
-    protected SipObjectDecoder() {
+    public SipObjectDecoder() {
         this(DEFAULT_MAX_INITIAL_LINE_LENGTH, DEFAULT_MAX_HEADER_SIZE, DEFAULT_MAX_CHUNK_SIZE);
     }
 
     /**
      * Creates a new instance with the specified parameters.
      */
-    protected SipObjectDecoder(
+    public SipObjectDecoder(
             int maxInitialLineLength, int maxHeaderSize, int maxChunkSize) {
         this(maxInitialLineLength, maxHeaderSize, maxChunkSize, DEFAULT_VALIDATE_HEADERS);
     }
@@ -114,14 +114,14 @@ public class SipObjectDecoder extends ByteToMessageDecoder {
     /**
      * Creates a new instance with the specified parameters.
      */
-    protected SipObjectDecoder(int maxInitialLineLength, int maxHeaderSize, int maxChunkSize, boolean validateHeaders) {
+    public SipObjectDecoder(int maxInitialLineLength, int maxHeaderSize, int maxChunkSize, boolean validateHeaders) {
         this(maxInitialLineLength, maxHeaderSize, maxChunkSize, validateHeaders, DEFAULT_INITIAL_BUFFER_SIZE);
     }
 
     /**
      * Creates a new instance with the specified parameters.
      */
-    protected SipObjectDecoder(
+    public SipObjectDecoder(
             int maxInitialLineLength, int maxHeaderSize, int maxChunkSize,
             boolean validateHeaders, int initialBufferSize) {
         checkPositive(maxInitialLineLength, "maxInitialLineLength");
