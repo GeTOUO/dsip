@@ -21,8 +21,5 @@ public class SipResponseHandler extends SimpleChannelInboundHandler<FullSipRespo
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullSipResponse msg) throws Exception {
         logger.info("收到一个SIP响应");
-        logger.info("status ===> " + msg.status().toString());
-        logger.info("headers ===> " + msg.headers().toString());
-        logger.info("content ===> " + msg.content().readCharSequence(msg.content().readableBytes(), StandardCharsets.UTF_8));
     }
 }

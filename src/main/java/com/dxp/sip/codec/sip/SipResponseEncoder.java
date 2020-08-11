@@ -14,7 +14,7 @@ public class SipResponseEncoder extends SipObjectEncoder<SipResponse> {
 
     @Override
     public boolean acceptOutboundMessage(Object msg) throws Exception {
-        return super.acceptOutboundMessage(msg) && !(msg instanceof HttpRequest);
+        return super.acceptOutboundMessage(msg) && !(msg instanceof SipRequest);
     }
 
     @Override

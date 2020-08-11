@@ -30,11 +30,6 @@ public class SipRequestHandler extends SimpleChannelInboundHandler<FullSipReques
             logger.error(SipMessageUtil.appendFullRequest(builder, msg).toString());
         }
 
-        logger.info("URL ===> " + msg.uri());
-        logger.info("method ===> " + msg.method().name());
-        logger.info("headers ===> " + headers.toString());
-        logger.info("content ===> " + msg.content().readCharSequence(msg.content().readableBytes(), StandardCharsets.UTF_8));
-
         // todo..  test register
         DefaultFullSipResponse response = new DefaultFullSipResponse(SipResponseStatus.UNAUTHORIZED);
         final AbstractSipHeaders h = response.headers();

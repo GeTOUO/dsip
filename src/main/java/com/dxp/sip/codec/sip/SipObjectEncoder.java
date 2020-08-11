@@ -237,11 +237,6 @@ public abstract class SipObjectEncoder<H extends SipMessage> extends MessageToMe
         return (readableBytes << 2) / 3;
     }
 
-    @Deprecated
-    protected static void encodeAscii(String s, ByteBuf buf) {
-        buf.writeCharSequence(s, CharsetUtil.US_ASCII);
-    }
-
     protected abstract void encodeInitialLine(ByteBuf buf, H message) throws Exception;
 
 }
