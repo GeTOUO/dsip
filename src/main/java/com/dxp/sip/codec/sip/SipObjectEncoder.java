@@ -178,30 +178,10 @@ public abstract class SipObjectEncoder<H extends SipMessage> extends MessageToMe
         }
 
         if (msg instanceof LastSipContent) {
-            AbstractSipHeaders headers = null;
-            if (headers.isEmpty()) {
-                out.add(ZERO_CRLF_CRLF_BUF.duplicate());
-            } else {
-                ByteBuf buf = ctx.alloc().buffer((int) trailersEncodedSizeAccumulator);
-                ByteBufUtil.writeMediumBE(buf, ZERO_CRLF_MEDIUM);
-                encodeHeaders(headers, buf);
-                ByteBufUtil.writeShortBE(buf, CRLF_SHORT);
-                trailersEncodedSizeAccumulator = TRAILERS_WEIGHT_NEW * padSizeForAccumulation(buf.readableBytes()) +
-                        TRAILERS_WEIGHT_HISTORICAL * trailersEncodedSizeAccumulator;
-                out.add(buf);
-            }
+            out.add(ZERO_CRLF_CRLF_BUF.duplicate());
         } else if (contentLength == 0) {
-            // Need to produce some output otherwise an
-            // IllegalStateException will be thrown
             out.add(encodeAndRetain(msg));
         }
-    }
-
-    /**
-     * Allows to sanitize headers of the message before encoding these.
-     */
-    protected void sanitizeHeadersBeforeEncode(@SuppressWarnings("unused") H msg, boolean isAlwaysEmpty) {
-        // noop
     }
 
     /**

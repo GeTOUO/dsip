@@ -4,11 +4,16 @@ import com.dxp.sip.bus.handler.SipRequestHandler;
 import com.dxp.sip.bus.handler.SipResponseHandler;
 import com.dxp.sip.codec.sip.SipObjectAggregator;
 import com.dxp.sip.codec.sip.SipObjectDecoder;
+import com.dxp.sip.codec.sip.SipRequestEncoder;
+import com.dxp.sip.codec.sip.SipResponseEncoder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
@@ -30,17 +35,22 @@ public class Application {
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
+        LoggingHandler loggingHandler = new LoggingHandler(LogLevel.DEBUG);
+
         b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG, 512)
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {
-                        ChannelPipeline pipeline = ch.pipeline();
-                        pipeline.addLast(new SipObjectDecoder());
-                        pipeline.addLast(new SipObjectAggregator(8192));
-                        pipeline.addLast(new SipRequestHandler());
-                        pipeline.addLast(new SipResponseHandler());
+                        ch.pipeline()
+                                .addLast(new SipResponseEncoder())
+                                .addLast(new SipRequestEncoder())
+                                .addLast(new SipObjectDecoder())
+                                .addLast(new SipObjectAggregator(8192))
+                                .addLast(loggingHandler)
+                                .addLast(new SipRequestHandler())
+                                .addLast(new SipResponseHandler());
                     }
                 });
         final ChannelFuture future = b.bind(port).sync();
