@@ -198,7 +198,7 @@ public class SipObjectUdpDecoder extends MessageToMessageDecoder<DatagramPacket>
                     out.add(message);
 
                     chunkSize = contentLength;
-                    return;
+//                    return;
                 } catch (Exception e) {
                     out.add(invalidMessage(buffer, e, sender));
                     return;
@@ -221,7 +221,7 @@ public class SipObjectUdpDecoder extends MessageToMessageDecoder<DatagramPacket>
                     out.add(new DefaultLastSipContent(content, validateHeaders));
                     resetNow();
                 } else {
-                    out.add(new DefaultHttpContent(content));
+                    out.add(new DefaultSipContent(content));
                 }
                 return;
             }

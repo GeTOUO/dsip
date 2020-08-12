@@ -3,6 +3,8 @@ package com.dxp.sip.codec.sip;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -33,7 +35,8 @@ public class DefaultSipResponseDecoderTest {
 
         EmbeddedChannel ch = new EmbeddedChannel(
                 new SipObjectDecoder(),
-                new SipObjectAggregator(8192)
+                new SipObjectAggregator(8192),
+                new LoggingHandler(LogLevel.INFO)
         );
         ch.writeInbound(Unpooled.wrappedBuffer(data2));
 
@@ -41,9 +44,6 @@ public class DefaultSipResponseDecoderTest {
         assertNotNull(res2);
         assertTrue(res2 instanceof FullSipResponse);
         final FullSipResponse response = (FullSipResponse) res2;
-        System.out.println("status ===> " + response.status().toString());
-        System.out.println("headers ===> " + response.headers().toString());
-        System.out.println("content ===> " + response.content().readCharSequence(response.content().readableBytes(), StandardCharsets.UTF_8));
         ((FullSipResponse) res2).release();
     }
 
