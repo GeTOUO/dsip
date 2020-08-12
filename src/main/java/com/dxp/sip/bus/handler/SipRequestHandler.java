@@ -6,8 +6,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
-import java.nio.charset.StandardCharsets;
-
 /**
  * 处理sip请求
  *
@@ -39,7 +37,7 @@ public class SipRequestHandler extends SimpleChannelInboundHandler<FullSipReques
                 .set(SipHeaderNames.CSEQ, headers.get(SipHeaderNames.CSEQ))
                 .set(SipHeaderNames.CALL_ID, headers.get(SipHeaderNames.CALL_ID))
                 .set(SipHeaderNames.USER_AGENT, "d-sip");
-        if (headers.contains(SipHeaderNames.AUTHORIZATION)) {
+        if (!headers.contains(SipHeaderNames.AUTHORIZATION)) {
             String wwwAuth = "Digest realm=\"31011000002001234567\", nonce=\"" +
                     "b700dc7cb094478503a21148184a3731\", opaque=\"5b279c2efd18d123d1f4a2182527a281\", algorithm=MD5";
             h.set(SipHeaderNames.WWW_AUTHENTICATE, wwwAuth);

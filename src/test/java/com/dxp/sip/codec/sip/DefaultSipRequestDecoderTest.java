@@ -42,10 +42,16 @@ public class DefaultSipRequestDecoderTest {
         assertNotNull(res1);
         assertTrue(res1 instanceof FullSipRequest);
         final FullSipRequest request = (FullSipRequest) res1;
+        final AbstractSipHeaders headers = request.headers();
+        System.out.println(headers.contains(SipHeaderNames.TO));
+        System.out.println(headers.contains(SipHeaderNames.FROM));
+        headers.entries().forEach(e -> {
+            System.out.println(e.getKey() + ":" + e.getValue());
+        });
         System.out.println("URL ===> " + request.uri());
-        System.out.println("method ===> " +request.method().name());
-        System.out.println("headers ===> " +request.headers().toString());
-        System.out.println("content ===> " +request.content().readCharSequence(request.content().readableBytes(), StandardCharsets.UTF_8));
+        System.out.println("method ===> " + request.method().name());
+        System.out.println("headers ===> " + headers.toString());
+        System.out.println("content ===> " + request.content().readCharSequence(request.content().readableBytes(), StandardCharsets.UTF_8));
 
         (request).release();
     }
