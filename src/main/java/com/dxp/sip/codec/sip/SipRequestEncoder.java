@@ -13,6 +13,7 @@ import static io.netty.handler.codec.http.HttpConstants.SP;
 /**
  * Encodes an {@link SipRequest} or an {@link SipContent} into
  * a {@link ByteBuf}.
+ * @author carzy
  */
 public class SipRequestEncoder extends SipObjectEncoder<SipRequest> {
 

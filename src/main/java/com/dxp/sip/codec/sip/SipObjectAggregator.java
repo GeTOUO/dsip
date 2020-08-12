@@ -20,7 +20,6 @@ import static com.dxp.sip.codec.sip.SipHeaderNames.CONNECTION;
  * @author carzy
  * @see FullSipRequest
  * @see FullSipResponse
- * @see SipResponseDecoder
  */
 public class SipObjectAggregator
         extends MessageAggregator<SipObject, SipMessage, SipContent, FullSipMessage> {
@@ -169,13 +168,17 @@ public class SipObjectAggregator
         AggregatedFullSipMessage(SipMessage message, ByteBuf content) {
             this.message = message;
             this.content = content;
+            this.recipient = message.recipient();
         }
 
-        public void setRecipient(InetSocketAddress recipient) {
+        @Override
+        public AggregatedFullSipMessage setRecipient(InetSocketAddress recipient) {
             this.recipient = recipient;
+            return this;
         }
 
-        public InetSocketAddress getRecipient() {
+        @Override
+        public InetSocketAddress recipient() {
             return recipient;
         }
 

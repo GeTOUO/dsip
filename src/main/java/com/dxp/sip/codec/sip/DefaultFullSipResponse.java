@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.util.IllegalReferenceCountException;
 
+import java.net.InetSocketAddress;
+
 import static io.netty.util.internal.ObjectUtil.checkNotNull;
 
 /**
@@ -33,6 +35,12 @@ public class DefaultFullSipResponse extends DefaultSipResponse implements FullSi
 
     public DefaultFullSipResponse(SipVersion version, SipResponseStatus status, boolean validateHeaders) {
         this(version, status, Unpooled.buffer(0), validateHeaders);
+    }
+
+    public DefaultFullSipResponse(SipVersion version, SipResponseStatus status,
+                                  boolean validateHeaders, InetSocketAddress recipient) {
+        this(version, status, Unpooled.buffer(0), validateHeaders);
+        this.setRecipient(recipient);
     }
 
     public DefaultFullSipResponse(SipVersion version, SipResponseStatus status,

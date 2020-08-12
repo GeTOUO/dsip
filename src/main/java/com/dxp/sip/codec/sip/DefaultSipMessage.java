@@ -5,6 +5,8 @@ import io.netty.handler.codec.http.*;
 import io.netty.util.internal.ObjectUtil;
 
 
+import java.net.InetSocketAddress;
+
 import static io.netty.util.internal.ObjectUtil.checkNotNull;
 
 /**
@@ -16,6 +18,7 @@ public class DefaultSipMessage extends DefaultSipObject implements SipMessage {
     private static final int HASH_CODE_PRIME = 31;
     private SipVersion version;
     private final AbstractSipHeaders headers;
+    private InetSocketAddress recipient;
 
     /**
      * Creates a new instance.
@@ -56,6 +59,17 @@ public class DefaultSipMessage extends DefaultSipObject implements SipMessage {
     }
 
     @Override
+    public DefaultSipMessage setRecipient(InetSocketAddress recipient) {
+        this.recipient = recipient;
+        return this;
+    }
+
+    @Override
+    public InetSocketAddress recipient() {
+        return this.recipient;
+    }
+
+    @Override
     public int hashCode() {
         int result = 1;
         result = HASH_CODE_PRIME * result + headers.hashCode();
@@ -67,11 +81,11 @@ public class DefaultSipMessage extends DefaultSipObject implements SipMessage {
     @SuppressWarnings("EqualsBetweenInconvertibleTypes")
     @Override
     public boolean equals(Object o) {
-        if (o == null){
+        if (o == null) {
             return false;
         }
 
-        if (o == this){
+        if (o == this) {
             return true;
         }
 

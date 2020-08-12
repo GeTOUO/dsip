@@ -2,6 +2,8 @@ package com.dxp.sip.codec.sip;
 
 import io.netty.util.internal.ObjectUtil;
 
+import java.net.InetSocketAddress;
+
 import static io.netty.util.internal.ObjectUtil.checkNotNull;
 
 /**
@@ -21,6 +23,12 @@ public class DefaultSipResponse extends DefaultSipMessage implements SipResponse
     public DefaultSipResponse(SipVersion version, SipResponseStatus status, boolean validateHeaders) {
         super(version, validateHeaders);
         this.status = checkNotNull(status, "status");
+    }
+
+    public DefaultSipResponse(SipVersion version, SipResponseStatus status, boolean validateHeaders, InetSocketAddress recipient) {
+        super(version, validateHeaders);
+        this.status = checkNotNull(status, "status");
+        this.setRecipient(recipient);
     }
 
     public DefaultSipResponse(SipVersion version, SipResponseStatus status, AbstractSipHeaders headers) {

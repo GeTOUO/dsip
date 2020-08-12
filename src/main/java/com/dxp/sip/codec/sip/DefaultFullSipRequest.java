@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.util.IllegalReferenceCountException;
 
+import java.net.InetSocketAddress;
+
 import static io.netty.util.internal.ObjectUtil.checkNotNull;
 
 /**
@@ -18,27 +20,33 @@ public class DefaultFullSipRequest extends DefaultSipRequest implements FullSipR
      */
     private int hash;
 
-    public DefaultFullSipRequest(SipVersion httpVersion, SipMethod method, String uri) {
-        this(httpVersion, method, uri, Unpooled.buffer(0));
+    public DefaultFullSipRequest(SipVersion sipVersion, SipMethod method, String uri) {
+        this(sipVersion, method, uri, Unpooled.buffer(0));
     }
 
-    public DefaultFullSipRequest(SipVersion httpVersion, SipMethod method, String uri, ByteBuf content) {
-        this(httpVersion, method, uri, content, true);
+    public DefaultFullSipRequest(SipVersion sipVersion, SipMethod method, String uri, ByteBuf content) {
+        this(sipVersion, method, uri, content, true);
     }
 
-    public DefaultFullSipRequest(SipVersion httpVersion, SipMethod method, String uri, boolean validateHeaders) {
-        this(httpVersion, method, uri, Unpooled.buffer(0), validateHeaders);
+    public DefaultFullSipRequest(SipVersion sipVersion, SipMethod method, String uri, boolean validateHeaders) {
+        this(sipVersion, method, uri, Unpooled.buffer(0), validateHeaders);
     }
 
-    public DefaultFullSipRequest(SipVersion httpVersion, SipMethod method, String uri,
+    public DefaultFullSipRequest(SipVersion sipVersion, SipMethod method, String uri, boolean validateHeaders,
+                                 InetSocketAddress recipient) {
+        this(sipVersion, method, uri, Unpooled.buffer(0), validateHeaders);
+        this.setRecipient(recipient);
+    }
+
+    public DefaultFullSipRequest(SipVersion sipVersion, SipMethod method, String uri,
                                  ByteBuf content, boolean validateHeaders) {
-        super(httpVersion, method, uri, validateHeaders);
+        super(sipVersion, method, uri, validateHeaders);
         this.content = checkNotNull(content, "content");
     }
 
-    public DefaultFullSipRequest(SipVersion httpVersion, SipMethod method, String uri,
+    public DefaultFullSipRequest(SipVersion sipVersion, SipMethod method, String uri,
                                  ByteBuf content, AbstractSipHeaders headers) {
-        super(httpVersion, method, uri, headers);
+        super(sipVersion, method, uri, headers);
         this.content = checkNotNull(content, "content");
     }
 

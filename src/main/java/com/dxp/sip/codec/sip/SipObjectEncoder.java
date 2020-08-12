@@ -5,10 +5,13 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.FileRegion;
+import io.netty.channel.socket.DatagramChannel;
+import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageEncoder;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.StringUtil;
 
+import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -59,7 +62,13 @@ public abstract class SipObjectEncoder<H extends SipMessage> extends MessageToMe
     @Override
     protected void encode(ChannelHandlerContext ctx, Object msg, List<Object> out) throws Exception {
         ByteBuf buf = null;
+        InetSocketAddress sender = null;
+        boolean isTcp = true;
         if (msg instanceof SipMessage) {
+            if (ctx.channel() instanceof DatagramChannel){
+                isTcp = false;
+                sender = ((SipMessage) msg).recipient();
+            }
             if (state != ST_INIT) {
                 throw new IllegalStateException("unexpected message type: " + StringUtil.simpleClassName(msg)
                         + ", state: " + state);
@@ -87,7 +96,11 @@ public abstract class SipObjectEncoder<H extends SipMessage> extends MessageToMe
         if (msg instanceof ByteBuf) {
             final ByteBuf potentialEmptyBuf = (ByteBuf) msg;
             if (!potentialEmptyBuf.isReadable()) {
-                out.add(potentialEmptyBuf.retain());
+                if (isTcp){
+                    out.add(potentialEmptyBuf.retain());
+                }else {
+                    out.add(new DatagramPacket(potentialEmptyBuf.retain(), sender));
+                }
                 return;
             }
         }
@@ -102,10 +115,18 @@ public abstract class SipObjectEncoder<H extends SipMessage> extends MessageToMe
                         if (buf != null && buf.writableBytes() >= contentLength && msg instanceof SipContent) {
                             // merge into other buffer for performance reasons
                             buf.writeBytes(((SipContent) msg).content());
-                            out.add(buf);
+                            if (isTcp){
+                                out.add(buf);
+                            }else {
+                                out.add(new DatagramPacket(buf, sender));
+                            }
                         } else {
                             if (buf != null) {
-                                out.add(buf);
+                                if (isTcp){
+                                    out.add(buf);
+                                }else {
+                                    out.add(new DatagramPacket(buf, sender));
+                                }
                             }
                             out.add(encodeAndRetain(msg));
                         }
@@ -122,7 +143,11 @@ public abstract class SipObjectEncoder<H extends SipMessage> extends MessageToMe
 
                     if (buf != null) {
                         // We allocated a buffer so add it now.
-                        out.add(buf);
+                        if (isTcp){
+                            out.add(buf);
+                        }else {
+                            out.add(new DatagramPacket(buf, sender));
+                        }
                     } else {
                         // Need to produce some output otherwise an
                         // IllegalStateException will be thrown as we did not write anything
@@ -131,14 +156,23 @@ public abstract class SipObjectEncoder<H extends SipMessage> extends MessageToMe
                         // buffer.
                         // Writing an empty buffer will not actually write anything on the wire, so if there is a user
                         // error with msg it will not be visible externally
-                        out.add(Unpooled.EMPTY_BUFFER);
+                        ;
+                        if (isTcp){
+                            out.add(out.add(Unpooled.EMPTY_BUFFER));
+                        }else {
+                            out.add(new DatagramPacket(Unpooled.EMPTY_BUFFER, sender));
+                        }
                     }
 
                     break;
                 case ST_CONTENT_CHUNK:
                     if (buf != null) {
                         // We allocated a buffer so add it now.
-                        out.add(buf);
+                        if (isTcp){
+                            out.add(buf);
+                        }else {
+                            out.add(new DatagramPacket(buf, sender));
+                        }
                     }
                     encodeChunkedContent(ctx, msg, contentLength(msg), out);
 
@@ -151,7 +185,11 @@ public abstract class SipObjectEncoder<H extends SipMessage> extends MessageToMe
                 state = ST_INIT;
             }
         } else if (buf != null) {
-            out.add(buf);
+            if (isTcp) {
+                out.add(buf);
+            } else {
+                out.add(new DatagramPacket(buf, sender));
+            }
         }
     }
 

@@ -1,5 +1,7 @@
 package com.dxp.sip.codec.sip;
 
+import java.net.InetSocketAddress;
+
 import static io.netty.util.internal.ObjectUtil.checkNotNull;
 
 /**
@@ -35,6 +37,13 @@ public class DefaultSipRequest extends DefaultSipMessage implements SipRequest {
         this.uri = checkNotNull(uri, "uri");
     }
 
+    public DefaultSipRequest(SipVersion httpVersion, SipMethod method, String uri, boolean validateHeaders, InetSocketAddress recipient) {
+        super(httpVersion, validateHeaders);
+        this.method = checkNotNull(method, "method");
+        this.uri = checkNotNull(uri, "uri");
+        this.setRecipient(recipient);
+    }
+
     /**
      * Creates a new instance.
      *
@@ -47,6 +56,13 @@ public class DefaultSipRequest extends DefaultSipMessage implements SipRequest {
         super(httpVersion, headers);
         this.method = checkNotNull(method, "method");
         this.uri = checkNotNull(uri, "uri");
+    }
+
+    public DefaultSipRequest(SipVersion httpVersion, SipMethod method, String uri, AbstractSipHeaders headers, InetSocketAddress recipient) {
+        super(httpVersion, headers);
+        this.method = checkNotNull(method, "method");
+        this.uri = checkNotNull(uri, "uri");
+        this.setRecipient(recipient);
     }
 
     @Override

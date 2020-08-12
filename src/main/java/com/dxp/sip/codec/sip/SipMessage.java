@@ -1,5 +1,7 @@
 package com.dxp.sip.codec.sip;
 
+import java.net.InetSocketAddress;
+
 /**
  * sip消息对象
  *
@@ -28,5 +30,15 @@ public interface SipMessage extends SipObject {
      * @return HttpHeaders
      */
     AbstractSipHeaders headers();
+
+    /**
+     * 设置消息来源地址
+     */
+    SipMessage setRecipient(InetSocketAddress recipient);
+
+    /**
+     * 获取消息来源地址
+     */
+    InetSocketAddress recipient();
 
 }
