@@ -1,5 +1,6 @@
 package com.dxp.sip;
 
+import com.dxp.sip.bus.handler.GbLoggingHandler;
 import com.dxp.sip.bus.handler.SipRequestHandler;
 import com.dxp.sip.bus.handler.SipResponseHandler;
 import com.dxp.sip.codec.sip.*;
@@ -26,7 +27,7 @@ public class Application {
 
     private static int port = 5060;
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(Application.class);
-    private static final LoggingHandler loggingHandler = new LoggingHandler(LogLevel.DEBUG);
+    private static final GbLoggingHandler loggingHandler = new GbLoggingHandler(LogLevel.DEBUG);
 
     // Configure the server.
     private static final EventLoopGroup BOSS_GROUP = new NioEventLoopGroup(1);
