@@ -54,7 +54,7 @@ public class DispatchHandler {
                 .set(SipHeaderNames.CONTENT_LENGTH, headers.get(SipHeaderNames.CONTENT_LENGTH))
                 .set(SipHeaderNames.CSEQ, headers.get(SipHeaderNames.CSEQ))
                 .set(SipHeaderNames.CALL_ID, headers.get(SipHeaderNames.CALL_ID))
-                .set(SipHeaderNames.REASON, request.method().asciiName())
+                .set(SipHeaderNames.REASON, request.method().asciiName() + " not allowed.")
                 .set(SipHeaderNames.USER_AGENT, "d-sip");
         channel.writeAndFlush(response);
     }
