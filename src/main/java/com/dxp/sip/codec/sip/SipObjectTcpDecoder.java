@@ -10,6 +10,7 @@ import io.netty.handler.codec.http.HttpConstants;
 import io.netty.util.ByteProcessor;
 import io.netty.util.internal.AppendableCharSequence;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 
 import static io.netty.util.internal.ObjectUtil.checkPositive;
@@ -20,7 +21,7 @@ import static io.netty.util.internal.ObjectUtil.checkPositive;
  * @author carzy
  * @date 2020/8/10
  */
-public class SipObjectDecoder extends ByteToMessageDecoder {
+public class SipObjectTcpDecoder extends ByteToMessageDecoder {
 
     private static final SipResponseStatus UNKNOWN_STATUS = new SipResponseStatus(999, "Unknown");
 
@@ -57,18 +58,18 @@ public class SipObjectDecoder extends ByteToMessageDecoder {
     /**
      * 头解析器
      */
-    private final SipObjectDecoder.HeaderParser headerParser;
+    private final SipObjectTcpDecoder.HeaderParser headerParser;
     /**
      * 行解析器
      */
-    private final SipObjectDecoder.LineParser lineParser;
+    private final SipObjectTcpDecoder.LineParser lineParser;
 
     private SipMessage message;
     private long chunkSize;
     private long contentLength = Long.MIN_VALUE;
 
     /**
-     * The internal state of {@link SipObjectDecoder}.
+     * The internal state of {@link SipObjectTcpDecoder}.
      * <em>Internal use only</em>.
      */
     private enum State {
@@ -99,14 +100,14 @@ public class SipObjectDecoder extends ByteToMessageDecoder {
      * {@code maxInitialLineLength (4096}}, {@code maxHeaderSize (8192)}, and
      * {@code maxChunkSize (8192)}.
      */
-    public SipObjectDecoder() {
+    public SipObjectTcpDecoder() {
         this(DEFAULT_MAX_INITIAL_LINE_LENGTH, DEFAULT_MAX_HEADER_SIZE, DEFAULT_MAX_CHUNK_SIZE);
     }
 
     /**
      * Creates a new instance with the specified parameters.
      */
-    public SipObjectDecoder(
+    public SipObjectTcpDecoder(
             int maxInitialLineLength, int maxHeaderSize, int maxChunkSize) {
         this(maxInitialLineLength, maxHeaderSize, maxChunkSize, DEFAULT_VALIDATE_HEADERS);
     }
@@ -114,14 +115,14 @@ public class SipObjectDecoder extends ByteToMessageDecoder {
     /**
      * Creates a new instance with the specified parameters.
      */
-    public SipObjectDecoder(int maxInitialLineLength, int maxHeaderSize, int maxChunkSize, boolean validateHeaders) {
+    public SipObjectTcpDecoder(int maxInitialLineLength, int maxHeaderSize, int maxChunkSize, boolean validateHeaders) {
         this(maxInitialLineLength, maxHeaderSize, maxChunkSize, validateHeaders, DEFAULT_INITIAL_BUFFER_SIZE);
     }
 
     /**
      * Creates a new instance with the specified parameters.
      */
-    public SipObjectDecoder(
+    public SipObjectTcpDecoder(
             int maxInitialLineLength, int maxHeaderSize, int maxChunkSize,
             boolean validateHeaders, int initialBufferSize) {
         checkPositive(maxInitialLineLength, "maxInitialLineLength");
@@ -129,8 +130,8 @@ public class SipObjectDecoder extends ByteToMessageDecoder {
         checkPositive(maxChunkSize, "maxChunkSize");
 
         AppendableCharSequence seq = new AppendableCharSequence(initialBufferSize);
-        lineParser = new SipObjectDecoder.LineParser(seq, maxInitialLineLength);
-        headerParser = new SipObjectDecoder.HeaderParser(seq, maxHeaderSize);
+        lineParser = new SipObjectTcpDecoder.LineParser(seq, maxInitialLineLength);
+        headerParser = new SipObjectTcpDecoder.HeaderParser(seq, maxHeaderSize);
         this.maxChunkSize = maxChunkSize;
         this.validateHeaders = validateHeaders;
     }
@@ -140,6 +141,7 @@ public class SipObjectDecoder extends ByteToMessageDecoder {
         if (resetRequested) {
             resetNow();
         }
+        final InetSocketAddress address = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
 
         switch (currentState) {
             case SKIP_CONTROL_CHARS:
@@ -153,20 +155,20 @@ public class SipObjectDecoder extends ByteToMessageDecoder {
                     String[] initialLine = splitInitialLine(line);
                     if (initialLine.length < 3) {
                         // Invalid initial line - ignore.
-                        currentState = SipObjectDecoder.State.SKIP_CONTROL_CHARS;
+                        currentState = SipObjectTcpDecoder.State.SKIP_CONTROL_CHARS;
                         return;
                     }
 
-                    message = createMessage(initialLine);
-                    currentState = SipObjectDecoder.State.READ_HEADER;
+                    message = createMessage(initialLine, address);
+                    currentState = SipObjectTcpDecoder.State.READ_HEADER;
                     // fall-through
                 } catch (Exception e) {
-                    out.add(invalidMessage(buffer, e));
+                    out.add(invalidMessage(buffer, e, address));
                     return;
                 }
             case READ_HEADER:
                 try {
-                    SipObjectDecoder.State nextState = readHeaders(buffer);
+                    SipObjectTcpDecoder.State nextState = readHeaders(buffer);
                     if (nextState == null) {
                         return;
                     }
@@ -194,7 +196,7 @@ public class SipObjectDecoder extends ByteToMessageDecoder {
                     chunkSize = contentLength;
                     return;
                 } catch (Exception e) {
-                    out.add(invalidMessage(buffer, e));
+                    out.add(invalidMessage(buffer, e, address));
                     return;
                 }
             case READ_FIXED_LENGTH_CONTENT: {
@@ -228,13 +230,13 @@ public class SipObjectDecoder extends ByteToMessageDecoder {
         }
     }
 
-    private SipMessage invalidMessage(ByteBuf in, Exception cause) {
+    private SipMessage invalidMessage(ByteBuf in, Exception cause, InetSocketAddress address) {
         currentState = State.BAD_MESSAGE;
 
         in.skipBytes(in.readableBytes());
 
         if (message == null) {
-            message = createInvalidMessage();
+            message = createInvalidMessage(address);
         }
         message.setDecoderResult(DecoderResult.failure(cause));
 
@@ -255,7 +257,7 @@ public class SipObjectDecoder extends ByteToMessageDecoder {
         headerParser.reset();
 
         resetRequested = false;
-        currentState = SipObjectDecoder.State.SKIP_CONTROL_CHARS;
+        currentState = SipObjectTcpDecoder.State.SKIP_CONTROL_CHARS;
     }
 
     /**
@@ -264,7 +266,7 @@ public class SipObjectDecoder extends ByteToMessageDecoder {
      * @param buffer 收到的buffer信息.
      * @return 下一次的读取状态.
      */
-    private SipObjectDecoder.State readHeaders(ByteBuf buffer) {
+    private SipObjectTcpDecoder.State readHeaders(ByteBuf buffer) {
         final SipMessage message = this.message;
         final AbstractSipHeaders headers = message.headers();
 
@@ -303,10 +305,10 @@ public class SipObjectDecoder extends ByteToMessageDecoder {
         value = null;
 
         if (contentLength() >= 0) {
-            return SipObjectDecoder.State.READ_FIXED_LENGTH_CONTENT;
+            return SipObjectTcpDecoder.State.READ_FIXED_LENGTH_CONTENT;
         } else {
             // 还未读到 content-length 头, 等待下次触发从读一次.
-            return SipObjectDecoder.State.SKIP_CONTROL_CHARS;
+            return SipObjectTcpDecoder.State.SKIP_CONTROL_CHARS;
         }
     }
 
@@ -443,32 +445,35 @@ public class SipObjectDecoder extends ByteToMessageDecoder {
      * @return SipMessage 创建sip消息对象. request, response.
      * @throws Exception ""
      */
-    protected SipMessage createMessage(String[] initialLine) throws Exception {
+    protected SipMessage createMessage(String[] initialLine, InetSocketAddress address) throws Exception {
         if (SipVersion.SIP_2_0_STRING.equalsIgnoreCase(initialLine[2])) {
             decodingRequest = true;
             return new DefaultSipRequest(
                     SipVersion.valueOf(initialLine[2]),
                     SipMethod.valueOf(initialLine[0]),
                     initialLine[1],
-                    validateHeaders);
+                    validateHeaders,
+                    address);
         } else if (SipVersion.SIP_2_0_STRING.equalsIgnoreCase(initialLine[0])) {
             decodingRequest = false;
             return new DefaultSipResponse(
                     SipVersion.valueOf(initialLine[0]),
-                    SipResponseStatus.valueOf(Integer.parseInt(initialLine[1]), initialLine[2]), validateHeaders);
+                    SipResponseStatus.valueOf(Integer.parseInt(initialLine[1]), initialLine[2]),
+                    validateHeaders,
+                    address);
         } else {
-            return createInvalidMessage();
+            return createInvalidMessage(address);
         }
     }
 
     /**
      * 消息解析失败时的处理.
      */
-    protected SipMessage createInvalidMessage() {
+    protected SipMessage createInvalidMessage(InetSocketAddress address) {
         if (decodingRequest) {
-            return new DefaultFullSipRequest(SipVersion.SIP_2_0, SipMethod.BAD, "/bad-request", validateHeaders);
+            return new DefaultFullSipRequest(SipVersion.SIP_2_0, SipMethod.BAD, "/bad-request", validateHeaders, address);
         } else {
-            return new DefaultFullSipResponse(SipVersion.SIP_2_0, UNKNOWN_STATUS, validateHeaders);
+            return new DefaultFullSipResponse(SipVersion.SIP_2_0, UNKNOWN_STATUS, validateHeaders, address);
         }
     }
 

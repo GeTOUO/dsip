@@ -2,6 +2,8 @@ package com.dxp.sip.codec.sip;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 
+import java.net.InetSocketAddress;
+
 /**
  * sip解析帮助类
  *
@@ -38,6 +40,15 @@ public class SipUtil {
     private static boolean isExpectHeaderValid(final SipMessage message) {
         return message instanceof SipRequest &&
                 message.protocolVersion().compareTo(SipVersion.SIP_2_0) >= 0;
+    }
+
+    /**
+     * 获取 InetSocketAddress 的IP和端口.
+     *
+     * @return 长度为2的字符串数组, [0] 表示IP,  [1] 表示端口.
+     */
+    public static String[] getAddr(InetSocketAddress address) {
+        return address.toString().substring(1).split(":");
     }
 
 }

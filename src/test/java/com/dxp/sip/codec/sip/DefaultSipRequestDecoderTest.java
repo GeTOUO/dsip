@@ -49,7 +49,7 @@ public class DefaultSipRequestDecoderTest {
                 "Content-Length:   " + data2.length + CRLF + CRLF).getBytes();
 
         EmbeddedChannel ch = new EmbeddedChannel(
-                new SipObjectDecoder(),
+                new SipObjectTcpDecoder(),
                 new SipObjectAggregator(8192),
                 new GbLoggingHandler(LogLevel.INFO)
         );
@@ -59,10 +59,40 @@ public class DefaultSipRequestDecoderTest {
         assertNotNull(res1);
         assertTrue(res1 instanceof FullSipRequest);
         final FullSipRequest request = (FullSipRequest) res1;
-        final List<String> list = request.headers().getAll("via");
+        final AbstractSipHeaders headers = request.headers();
+        final List<String> list = headers.getAll(SipHeaderNames.VIA);
         list.forEach(System.out::println);
-        System.out.println("request.headers().get(\"via\"):  " + request.headers().get("via"));
+
+        final String re = headers.get(SipHeaderNames.VIA);
+        StringBuilder builder = new StringBuilder();
+        if (re.contains("rport")){
+            final String[] split = re.split(";");
+            for (String s : split) {
+                if (s.equals("rport")){
+                    continue;
+                }
+                builder.append(s).append(";");
+            }
+            builder.append("rport=15475;received=127.0.0.1");
+        }else {
+            builder.append(headers.get(SipHeaderNames.VIA));
+        }
+
+        final AbstractSipHeaders copy = headers.copy();
+        copy.remove(SipHeaderNames.VIA);
+        copy.add(SipHeaderNames.VIA, builder.toString());
+        if (list.size() > 1){
+            for (int i = 1; i < list.size(); i++) {
+                copy.add(SipHeaderNames.VIA, list.get(i));
+            }
+        }
+        printVia(copy);
         (request).release();
+    }
+
+    private void printVia(AbstractSipHeaders headers){
+        final List<String> all = headers.getAll(SipHeaderNames.VIA);
+        all.forEach(System.out::println);
     }
 
 }

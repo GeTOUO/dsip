@@ -43,7 +43,7 @@ public class DefaultSipRequestAndResponseDecoderTest {
                 "Content-Length: 0\r\n\r\n").getBytes();
 
         EmbeddedChannel ch = new EmbeddedChannel(
-                new SipObjectDecoder(),
+                new SipObjectTcpDecoder(),
                 new SipObjectAggregator(8192)
         );
         ch.writeInbound(Unpooled.wrappedBuffer(data1), Unpooled.wrappedBuffer(data2));

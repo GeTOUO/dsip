@@ -24,12 +24,19 @@ public class DefaultSipRequest extends DefaultSipMessage implements SipRequest {
     }
 
     /**
+     * UDP下可用此构造函数.
+     */
+    public DefaultSipRequest(SipVersion httpVersion, SipMethod method, String uri, InetSocketAddress address) {
+        this(httpVersion, method, uri, true, address);
+    }
+
+    /**
      * Creates a new instance.
      *
-     * @param httpVersion       the HTTP version of the request
-     * @param method            the HTTP method of the request
-     * @param uri               the URI or path of the request
-     * @param validateHeaders   validate the header names and values when adding them to the {@link AbstractSipHeaders}
+     * @param httpVersion     the HTTP version of the request
+     * @param method          the HTTP method of the request
+     * @param uri             the URI or path of the request
+     * @param validateHeaders validate the header names and values when adding them to the {@link AbstractSipHeaders}
      */
     public DefaultSipRequest(SipVersion httpVersion, SipMethod method, String uri, boolean validateHeaders) {
         super(httpVersion, validateHeaders);
@@ -47,10 +54,10 @@ public class DefaultSipRequest extends DefaultSipMessage implements SipRequest {
     /**
      * Creates a new instance.
      *
-     * @param httpVersion       the HTTP version of the request
-     * @param method            the HTTP method of the request
-     * @param uri               the URI or path of the request
-     * @param headers           the Headers for this Request
+     * @param httpVersion the HTTP version of the request
+     * @param method      the HTTP method of the request
+     * @param uri         the URI or path of the request
+     * @param headers     the Headers for this Request
      */
     public DefaultSipRequest(SipVersion httpVersion, SipMethod method, String uri, AbstractSipHeaders headers) {
         super(httpVersion, headers);
@@ -111,8 +118,8 @@ public class DefaultSipRequest extends DefaultSipMessage implements SipRequest {
         DefaultSipRequest other = (DefaultSipRequest) o;
 
         return method().equals(other.method()) &&
-               uri().equalsIgnoreCase(other.uri()) &&
-               super.equals(o);
+                uri().equalsIgnoreCase(other.uri()) &&
+                super.equals(o);
     }
 
     @Override

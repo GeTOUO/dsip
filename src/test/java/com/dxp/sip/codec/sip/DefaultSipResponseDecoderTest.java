@@ -2,12 +2,9 @@ package com.dxp.sip.codec.sip;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
-import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import org.junit.Test;
-
-import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -34,7 +31,7 @@ public class DefaultSipResponseDecoderTest {
                 "Content-Length: 0\r\n\r\n").getBytes();
 
         EmbeddedChannel ch = new EmbeddedChannel(
-                new SipObjectDecoder(),
+                new SipObjectTcpDecoder(),
                 new SipObjectAggregator(8192),
                 new LoggingHandler(LogLevel.INFO)
         );
