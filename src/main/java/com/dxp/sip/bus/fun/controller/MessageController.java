@@ -27,7 +27,7 @@ public class MessageController implements HandlerController {
         final String type = headers.get(SipHeaderNames.CONTENT_TYPE);
         if (SipHeaderValues.APPLICATION_MANSCDP_XML.contentEqualsIgnoreCase(type)) {
             //todo.. XML解析。 国标使用的是 gb2313 字符集
-            LOGGER.info("xml: {}", request.content().toString(CharsetUtils.GB_2313));
+            LOGGER.info("[{}{}] - xml: {}", channel.id().asShortText(), request.recipient().toString(), request.content().toString(CharsetUtils.GB_2313));
         } else {
             err_400("message content_type must be Application/MANSCDP+xml", request, channel);
         }

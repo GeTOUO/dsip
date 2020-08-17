@@ -33,13 +33,17 @@ public class GbLoggingHandler extends LoggingHandler {
         }
     }
 
+    @Override
+    protected String format(ChannelHandlerContext ctx, String eventName) {
+        String chStr = ctx.channel().id().asShortText();
+        return chStr + ' ' + eventName;
+    }
+
     private String formatByteBuf(ChannelHandlerContext ctx, String eventName, ByteBuf msg) {
-        String chStr = ctx.channel().toString();
+        String chStr = ctx.channel().id().asShortText();
         int length = msg.readableBytes();
         if (length == 0) {
-            StringBuilder buf = new StringBuilder(chStr.length() + 1 + eventName.length() + 4);
-            buf.append(chStr).append(' ').append(eventName).append(": 0B");
-            return buf.toString();
+            return chStr + ' ' + eventName + ": 0B";
         } else {
             int outputLength = chStr.length() + 1 + eventName.length() + 2 + 10 + 1;
             if (byteBufFormat() == ByteBufFormat.HEX_DUMP) {
@@ -62,14 +66,12 @@ public class GbLoggingHandler extends LoggingHandler {
      * Generates the default log message of the specified event whose argument is a {@link ByteBufHolder}.
      */
     private String formatByteBufHolder(ChannelHandlerContext ctx, String eventName, ByteBufHolder msg) {
-        String chStr = ctx.channel().toString();
+        String chStr = ctx.channel().id().asShortText();
         String msgStr = msg.toString();
         ByteBuf content = msg.content();
         int length = content.readableBytes();
         if (length == 0) {
-            StringBuilder buf = new StringBuilder(chStr.length() + 1 + eventName.length() + 2 + msgStr.length() + 4);
-            buf.append(chStr).append(' ').append(eventName).append(", ").append(msgStr).append(", 0B");
-            return buf.toString();
+            return chStr + ' ' + eventName + ", " + msgStr + ", 0B";
         } else {
             int outputLength = chStr.length() + 1 + eventName.length() + 2 + msgStr.length() + 2 + 10 + 1;
             if (byteBufFormat() == ByteBufFormat.HEX_DUMP) {
@@ -93,10 +95,9 @@ public class GbLoggingHandler extends LoggingHandler {
      * Generates the default log message of the specified event whose argument is an arbitrary object.
      */
     private static String formatSimple(ChannelHandlerContext ctx, String eventName, Object msg) {
-        String chStr = ctx.channel().toString();
+        String chStr = ctx.channel().id().asShortText();
         String msgStr = String.valueOf(msg);
-        StringBuilder buf = new StringBuilder(chStr.length() + 1 + eventName.length() + 2 + msgStr.length());
-        return buf.append(chStr).append(' ').append(eventName).append(": ").append(msgStr).toString();
+        return chStr + ' ' + eventName + ": " + msgStr;
     }
 
     public static void appendPrettyHexDump(StringBuilder dump, ByteBuf buf) {
