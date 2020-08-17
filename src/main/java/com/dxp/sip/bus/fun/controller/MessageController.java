@@ -37,10 +37,10 @@ public class MessageController implements HandlerController {
             if ("Keepalive".equalsIgnoreCase(cmdType)) {
                 keepalive(request, channel);
             } else {
-                SendErrorResponseUtil.err_405(request, channel, "cmdType not allowed.");
+                SendErrorResponseUtil.err400(request, channel, "cmdType not allowed.");
             }
         } else {
-            err_400("message content_type must be Application/MANSCDP+xml", request, channel);
+            SendErrorResponseUtil.err400(request, channel, "message content_type must be Application/MANSCDP+xml");
         }
     }
 

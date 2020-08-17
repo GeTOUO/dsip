@@ -2,10 +2,6 @@ package com.dxp.sip.codec.sip;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpObjectEncoder;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
 import io.netty.util.CharsetUtil;
 
 import static io.netty.handler.codec.http.HttpConstants.SP;
@@ -15,7 +11,7 @@ import static io.netty.handler.codec.http.HttpConstants.SP;
  * a {@link ByteBuf}.
  * @author carzy
  */
-public class SipRequestEncoder extends SipObjectEncoder<SipRequest> {
+public class AbstractSipRequestEncoder extends AbstractSipObjectEncoder<SipRequest> {
 
     private static final char SLASH = '/';
     private static final char QUESTION_MARK = '?';

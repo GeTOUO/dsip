@@ -119,11 +119,11 @@ public class SipObjectAggregator
     protected FullSipMessage beginAggregation(SipMessage start, ByteBuf content) throws Exception {
         assert !(start instanceof FullSipMessage);
 
-        AggregatedFullSipMessage ret;
+        AbstractAggregatedFullSipMessage ret;
         if (start instanceof SipRequest) {
-            ret = new AggregatedFullSipRequest((SipRequest) start, content);
+            ret = new AbstractAggregatedFullSipRequest((SipRequest) start, content);
         } else if (start instanceof SipResponse) {
-            ret = new AggregatedFullSipResponse((SipResponse) start, content);
+            ret = new AbstractAggregatedFullSipResponse((SipResponse) start, content);
         } else {
             throw new Error();
         }
@@ -160,19 +160,19 @@ public class SipObjectAggregator
         }
     }
 
-    public abstract static class AggregatedFullSipMessage implements FullSipMessage {
+    public abstract static class AbstractAggregatedFullSipMessage implements FullSipMessage {
         protected final SipMessage message;
         private final ByteBuf content;
         private InetSocketAddress recipient;
 
-        AggregatedFullSipMessage(SipMessage message, ByteBuf content) {
+        AbstractAggregatedFullSipMessage(SipMessage message, ByteBuf content) {
             this.message = message;
             this.content = content;
             this.recipient = message.recipient();
         }
 
         @Override
-        public AggregatedFullSipMessage setRecipient(InetSocketAddress recipient) {
+        public AbstractAggregatedFullSipMessage setRecipient(InetSocketAddress recipient) {
             this.recipient = recipient;
             return this;
         }
@@ -268,9 +268,9 @@ public class SipObjectAggregator
         }
     }
 
-    public static final class AggregatedFullSipRequest extends AggregatedFullSipMessage implements FullSipRequest {
+    public static final class AbstractAggregatedFullSipRequest extends AbstractAggregatedFullSipMessage implements FullSipRequest {
 
-        public AggregatedFullSipRequest(SipRequest request, ByteBuf content) {
+        public AbstractAggregatedFullSipRequest(SipRequest request, ByteBuf content) {
             super(request, content);
         }
 
@@ -360,10 +360,10 @@ public class SipObjectAggregator
         }
     }
 
-    public static final class AggregatedFullSipResponse extends AggregatedFullSipMessage
+    public static final class AbstractAggregatedFullSipResponse extends AbstractAggregatedFullSipMessage
             implements FullSipResponse {
 
-        public AggregatedFullSipResponse(SipResponse message, ByteBuf content) {
+        public AbstractAggregatedFullSipResponse(SipResponse message, ByteBuf content) {
             super(message, content);
         }
 

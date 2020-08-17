@@ -379,7 +379,7 @@ public final class SipHeaderNames {
     /**
      * {@code "Subscription-State"}
      */
-    public static final AsciiString SubscriptionState = AsciiString.cached("Subscription-State");
+    public static final AsciiString SUBSCRIPTION_STATE = AsciiString.cached("Subscription-State");
 
     private SipHeaderNames() {
     }

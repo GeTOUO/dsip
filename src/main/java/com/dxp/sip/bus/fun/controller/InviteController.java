@@ -31,7 +31,7 @@ public class InviteController implements HandlerController {
             //todo.. sdp解析。
             LOGGER.info("sdp: {}", msg.content().toString(CharsetUtils.US_ASCII));
         } else {
-            SendErrorResponseUtil.err_400(msg, channel, "message content_type must be Application/MANSCDP+xml");
+            SendErrorResponseUtil.err400(msg, channel, "message content_type must be Application/MANSCDP+xml");
         }
     }
 }

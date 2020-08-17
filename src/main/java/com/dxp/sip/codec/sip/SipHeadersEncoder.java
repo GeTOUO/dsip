@@ -7,7 +7,7 @@ import io.netty.util.CharsetUtil;
 
 import static com.dxp.sip.codec.sip.SipConstants.COLON;
 import static com.dxp.sip.codec.sip.SipConstants.SP;
-import static com.dxp.sip.codec.sip.SipObjectEncoder.CRLF_SHORT;
+import static com.dxp.sip.codec.sip.AbstractSipObjectEncoder.CRLF_SHORT;
 
 /**
  * @author carzy

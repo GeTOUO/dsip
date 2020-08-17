@@ -10,16 +10,16 @@ import io.netty.channel.Channel;
  */
 public class SendErrorResponseUtil {
 
-    public static void err_400(FullSipRequest request, Channel channel, String reason) {
-        err(request, SipResponseStatus.BAD_REQUEST, channel, reason);
+    public static void err400(FullSipRequest request, Channel channel, String reason) {
+        error(request, SipResponseStatus.BAD_REQUEST, channel, reason);
     }
 
-    public static void err_500(FullSipRequest request, Channel channel, String reason) {
-        err(request, SipResponseStatus.INTERNAL_SERVER_ERROR, channel, reason);
+    public static void err500(FullSipRequest request, Channel channel, String reason) {
+        error(request, SipResponseStatus.INTERNAL_SERVER_ERROR, channel, reason);
     }
 
-    public static void err_405(FullSipRequest request, Channel channel, String reason) {
-        err(request, SipResponseStatus.METHOD_NOT_ALLOWED, channel, reason);
+    public static void err405(FullSipRequest request, Channel channel) {
+        error(request, SipResponseStatus.METHOD_NOT_ALLOWED, channel, request.method().asciiName() + " not allowed");
     }
 
     /**
@@ -27,7 +27,7 @@ public class SendErrorResponseUtil {
      * @param channel 通道
      * @param reason  错误信息.
      */
-    private static void err(FullSipRequest request, SipResponseStatus status, Channel channel, String reason) {
+    private static void error(FullSipRequest request, SipResponseStatus status, Channel channel, String reason) {
         final AbstractSipHeaders headers = request.headers();
         DefaultFullSipResponse response = new DefaultFullSipResponse(status);
         response.setRecipient(request.recipient());
@@ -43,6 +43,7 @@ public class SendErrorResponseUtil {
         channel.writeAndFlush(response);
     }
 
-    private SendErrorResponseUtil(){}
+    private SendErrorResponseUtil() {
+    }
 
 }

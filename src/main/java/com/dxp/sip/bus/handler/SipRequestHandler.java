@@ -28,9 +28,9 @@ public class SipRequestHandler extends SimpleChannelInboundHandler<FullSipReques
 
         // 启动的时候已经声明了. TCP为NioSocketChannel, UDP为NioDatagramChannel
         if (channel instanceof NioDatagramChannel) {
-            LOGGER.info("[{}{}] rec udp msg", channel.id().asShortText(), msg.recipient().toString());
+            LOGGER.info("[{}{}] rec udp request msg", channel.id().asShortText(), msg.recipient().toString());
         } else {
-            LOGGER.info("[{}{}] rec tcp msg", channel.id().asShortText(), msg.recipient().toString());
+            LOGGER.info("[{}{}] rec tcp request msg", channel.id().asShortText(), msg.recipient().toString());
         }
 
         if (SipMethod.BAD == msg.method()) {

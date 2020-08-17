@@ -26,7 +26,7 @@ import static io.netty.buffer.Unpooled.unreleasableBuffer;
  *
  * @author carzy
  */
-public abstract class SipObjectEncoder<H extends SipMessage> extends MessageToMessageEncoder<Object> {
+public abstract class AbstractSipObjectEncoder<H extends SipMessage> extends MessageToMessageEncoder<Object> {
 
     static final int CRLF_SHORT = (CR << 8) | LF;
     private static final int ZERO_CRLF_MEDIUM = ('0' << 16) | CRLF_SHORT;

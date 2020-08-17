@@ -7,8 +7,6 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.CharsetUtil;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 /**
  * @author dxp
  * 2020/8/11 9:06 下午
@@ -27,7 +25,7 @@ public class SipResponseEncoderTest {
                 .set(SipHeaderNames.USER_AGENT, "d-sip");
 
         EmbeddedChannel ch = new EmbeddedChannel(
-                new SipResponseEncoder(),
+                new AbstractSipResponseEncoder(),
                 new LoggingHandler(LogLevel.INFO)
         );
         ch.writeAndFlush(response);

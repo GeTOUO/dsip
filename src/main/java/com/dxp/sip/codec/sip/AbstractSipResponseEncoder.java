@@ -11,7 +11,7 @@ import static io.netty.handler.codec.http.HttpConstants.SP;
  * a {@link ByteBuf}.
  * @author carzy
  */
-public class SipResponseEncoder extends SipObjectEncoder<SipResponse> {
+public class AbstractSipResponseEncoder extends AbstractSipObjectEncoder<SipResponse> {
 
     @Override
     public boolean acceptOutboundMessage(Object msg) throws Exception {

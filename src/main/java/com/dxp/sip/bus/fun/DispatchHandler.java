@@ -36,14 +36,14 @@ public class DispatchHandler {
             final SipMethod method = request.method();
             final HandlerController controller = DispatchHandlerContext.method(method);
             if (controller == null) {
-                SendErrorResponseUtil.err_405(request, channel, request.method().asciiName() + " not allowed");
+                SendErrorResponseUtil.err405(request, channel);
             } else {
                 controller.handler(request, channel);
             }
         } catch (DocumentException e) {
-            SendErrorResponseUtil.err_400(request, channel, "xml err");
+            SendErrorResponseUtil.err400(request, channel, "xml err");
         } catch (Exception e) {
-            SendErrorResponseUtil.err_500(request, channel, e.getMessage());
+            SendErrorResponseUtil.err500(request, channel, e.getMessage());
         } finally {
             request.release();
         }

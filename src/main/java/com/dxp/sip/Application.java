@@ -24,8 +24,8 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 public class Application {
 
     private static int port = 5060;
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(Application.class);
-    private static final GbLoggingHandler loggingHandler = new GbLoggingHandler(LogLevel.DEBUG);
+    private static final InternalLogger LOGGER = InternalLoggerFactory.getInstance(Application.class);
+    private static final GbLoggingHandler LOGGING_HANDLER = new GbLoggingHandler(LogLevel.DEBUG);
 
     // Configure the server.
     private static final EventLoopGroup BOSS_GROUP = new NioEventLoopGroup(1);
@@ -52,11 +52,11 @@ public class Application {
                     @Override
                     protected void initChannel(NioDatagramChannel ch) throws Exception {
                         ch.pipeline()
-                                .addLast(new SipResponseEncoder())
-                                .addLast(new SipRequestEncoder())
+                                .addLast(new AbstractSipResponseEncoder())
+                                .addLast(new AbstractSipRequestEncoder())
                                 .addLast(new SipObjectUdpDecoder())
                                 .addLast(new SipObjectAggregator(8192))
-                                .addLast(loggingHandler)
+                                .addLast(LOGGING_HANDLER)
                                 .addLast(new SipRequestHandler())
                                 .addLast(new SipResponseHandler());
                     }
@@ -64,13 +64,13 @@ public class Application {
 
         ChannelFuture future = b.bind(port).sync();
 
-        logger.info("udp port " + port + " is running.");
+        LOGGER.info("udp port " + port + " is running.");
 
         future.channel().closeFuture().addListener(f -> {
             if (f.isSuccess()) {
-                logger.info("udp exit suc on port " + port);
+                LOGGER.info("udp exit suc on port " + port);
             } else {
-                logger.error("udp exit err on port " + port, f.cause());
+                LOGGER.error("udp exit err on port " + port, f.cause());
             }
         });
     }
@@ -84,24 +84,24 @@ public class Application {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {
                         ch.pipeline()
-                                .addLast(new SipResponseEncoder())
-                                .addLast(new SipRequestEncoder())
+                                .addLast(new AbstractSipResponseEncoder())
+                                .addLast(new AbstractSipRequestEncoder())
                                 .addLast(new SipObjectTcpDecoder())
                                 .addLast(new SipObjectAggregator(8192))
-                                .addLast(loggingHandler)
+                                .addLast(LOGGING_HANDLER)
                                 .addLast(new SipRequestHandler())
                                 .addLast(new SipResponseHandler());
                     }
                 });
         final ChannelFuture future = b.bind(port).sync();
 
-        logger.info("tcp port " + port + " is running.");
+        LOGGER.info("tcp port " + port + " is running.");
 
         future.channel().closeFuture().addListener(f -> {
             if (f.isSuccess()) {
-                logger.info("tcp exit suc on port " + port);
+                LOGGER.info("tcp exit suc on port " + port);
             } else {
-                logger.error("tcp exit err on port " + port, f.cause());
+                LOGGER.error("tcp exit err on port " + port, f.cause());
             }
         });
     }
