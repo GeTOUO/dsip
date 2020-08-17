@@ -6,6 +6,11 @@ import com.dxp.sip.util.CharsetUtils;
 import io.netty.channel.Channel;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Node;
+
 
 /**
  * @author carzy
@@ -21,15 +26,36 @@ public class MessageController implements HandlerController {
     }
 
     @Override
-    public void handler(FullSipRequest request, Channel channel) {
+    public void handler(FullSipRequest request, Channel channel) throws DocumentException {
         final AbstractSipHeaders headers = request.headers();
 
         final String type = headers.get(SipHeaderNames.CONTENT_TYPE);
         if (SipHeaderValues.APPLICATION_MANSCDP_XML.contentEqualsIgnoreCase(type)) {
-            //todo.. XML解析。 国标使用的是 gb2313 字符集
-            LOGGER.info("[{}{}] - xml: {}", channel.id().asShortText(), request.recipient().toString(), request.content().toString(CharsetUtils.GB_2313));
+            final String xml = request.content().toString(CharsetUtils.GB_2313);
+            final Document document = DocumentHelper.parseText(xml);
+            final String cmdType = document.getRootElement().element("CmdType").getTextTrim();
+            if ("Keepalive".equalsIgnoreCase(cmdType)) {
+                keepalive(request, channel);
+            } else {
+                err_405("cmdType not allowed.", request, channel);
+            }
         } else {
             err_400("message content_type must be Application/MANSCDP+xml", request, channel);
         }
     }
+
+    private void keepalive(FullSipRequest msg, Channel channel) {
+        final AbstractSipHeaders headers = msg.headers();
+        DefaultFullSipResponse response = new DefaultFullSipResponse(SipResponseStatus.OK);
+        response.setRecipient(msg.recipient());
+        final AbstractSipHeaders h = response.headers();
+        h.set(SipHeaderNames.FROM, headers.get(SipHeaderNames.FROM))
+                .set(SipHeaderNames.TO, headers.get(SipHeaderNames.TO) + ";tag=" + System.currentTimeMillis())
+                .set(SipHeaderNames.CSEQ, headers.get(SipHeaderNames.CSEQ))
+                .set(SipHeaderNames.CALL_ID, headers.get(SipHeaderNames.CALL_ID))
+                .set(SipHeaderNames.USER_AGENT, "d-sip")
+                .set(SipHeaderNames.CONTENT_LENGTH, SipHeaderValues.EMPTY_CONTENT_LENGTH);
+        channel.writeAndFlush(response);
+    }
+
 }

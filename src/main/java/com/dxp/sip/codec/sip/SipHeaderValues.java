@@ -22,4 +22,6 @@ public final class SipHeaderValues {
 
     public static final AsciiString CONTINUE = AsciiString.cached("100-continue");
 
+    public static final AsciiString EMPTY_CONTENT_LENGTH = AsciiString.cached("0");
+
 }
