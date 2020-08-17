@@ -18,37 +18,8 @@ public interface HandlerController {
      *
      * @param request 请求携带的信息.
      * @param channel 通道
+     * @throws DocumentException 解析XML失败.
      */
     void handler(FullSipRequest request, Channel channel) throws DocumentException;
-
-    default void err_405(CharSequence reason, FullSipRequest msg, Channel channel) {
-        final AbstractSipHeaders headers = msg.headers();
-        DefaultFullSipResponse response = new DefaultFullSipResponse(SipResponseStatus.METHOD_NOT_ALLOWED);
-        response.setRecipient(msg.recipient());
-        final AbstractSipHeaders h = response.headers();
-        h.set(SipHeaderNames.FROM, headers.get(SipHeaderNames.FROM))
-                .set(SipHeaderNames.TO, headers.get(SipHeaderNames.TO))
-                .set(SipHeaderNames.CONTENT_LENGTH, headers.get(SipHeaderNames.CONTENT_LENGTH))
-                .set(SipHeaderNames.CSEQ, headers.get(SipHeaderNames.CSEQ))
-                .set(SipHeaderNames.CALL_ID, headers.get(SipHeaderNames.CALL_ID))
-                .set(SipHeaderNames.REASON, reason)
-                .set(SipHeaderNames.USER_AGENT, "d-sip");
-        channel.writeAndFlush(response);
-    }
-
-    default void err_400(CharSequence reason, FullSipRequest msg, Channel channel) {
-        final AbstractSipHeaders headers = msg.headers();
-        DefaultFullSipResponse response = new DefaultFullSipResponse(SipResponseStatus.BAD_REQUEST);
-        response.setRecipient(msg.recipient());
-        final AbstractSipHeaders h = response.headers();
-        h.set(SipHeaderNames.FROM, headers.get(SipHeaderNames.FROM))
-                .set(SipHeaderNames.TO, headers.get(SipHeaderNames.TO))
-                .set(SipHeaderNames.CONTENT_LENGTH, headers.get(SipHeaderNames.CONTENT_LENGTH))
-                .set(SipHeaderNames.CSEQ, headers.get(SipHeaderNames.CSEQ))
-                .set(SipHeaderNames.CALL_ID, headers.get(SipHeaderNames.CALL_ID))
-                .set(SipHeaderNames.REASON, reason)
-                .set(SipHeaderNames.USER_AGENT, "d-sip");
-        channel.writeAndFlush(response);
-    }
 
 }

@@ -24,4 +24,6 @@ public final class SipHeaderValues {
 
     public static final AsciiString EMPTY_CONTENT_LENGTH = AsciiString.cached("0");
 
+    public static final AsciiString USER_AGENT = AsciiString.cached("d-sip");
+
 }

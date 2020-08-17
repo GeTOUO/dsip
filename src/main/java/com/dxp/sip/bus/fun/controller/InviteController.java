@@ -3,6 +3,7 @@ package com.dxp.sip.bus.fun.controller;
 import com.dxp.sip.bus.fun.HandlerController;
 import com.dxp.sip.codec.sip.*;
 import com.dxp.sip.util.CharsetUtils;
+import com.dxp.sip.util.SendErrorResponseUtil;
 import io.netty.channel.Channel;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -30,7 +31,7 @@ public class InviteController implements HandlerController {
             //todo.. sdp解析。
             LOGGER.info("sdp: {}", msg.content().toString(CharsetUtils.US_ASCII));
         } else {
-            err_400("message content_type must be Application/MANSCDP+xml", msg, channel);
+            SendErrorResponseUtil.err_400(msg, channel, "message content_type must be Application/MANSCDP+xml");
         }
     }
 }

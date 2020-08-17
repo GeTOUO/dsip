@@ -3,13 +3,13 @@ package com.dxp.sip.bus.fun.controller;
 import com.dxp.sip.bus.fun.HandlerController;
 import com.dxp.sip.codec.sip.*;
 import com.dxp.sip.util.CharsetUtils;
+import com.dxp.sip.util.SendErrorResponseUtil;
 import io.netty.channel.Channel;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
-import org.dom4j.Node;
 
 
 /**
@@ -37,7 +37,7 @@ public class MessageController implements HandlerController {
             if ("Keepalive".equalsIgnoreCase(cmdType)) {
                 keepalive(request, channel);
             } else {
-                err_405("cmdType not allowed.", request, channel);
+                SendErrorResponseUtil.err_405(request, channel, "cmdType not allowed.");
             }
         } else {
             err_400("message content_type must be Application/MANSCDP+xml", request, channel);
@@ -53,7 +53,7 @@ public class MessageController implements HandlerController {
                 .set(SipHeaderNames.TO, headers.get(SipHeaderNames.TO) + ";tag=" + System.currentTimeMillis())
                 .set(SipHeaderNames.CSEQ, headers.get(SipHeaderNames.CSEQ))
                 .set(SipHeaderNames.CALL_ID, headers.get(SipHeaderNames.CALL_ID))
-                .set(SipHeaderNames.USER_AGENT, "d-sip")
+                .set(SipHeaderNames.USER_AGENT, SipHeaderValues.USER_AGENT)
                 .set(SipHeaderNames.CONTENT_LENGTH, SipHeaderValues.EMPTY_CONTENT_LENGTH);
         channel.writeAndFlush(response);
     }

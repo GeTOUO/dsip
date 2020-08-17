@@ -28,7 +28,7 @@ public class RegisterController implements HandlerController {
                     .set(SipHeaderNames.TO, headers.get(SipHeaderNames.TO))
                     .set(SipHeaderNames.CSEQ, headers.get(SipHeaderNames.CSEQ))
                     .set(SipHeaderNames.CALL_ID, headers.get(SipHeaderNames.CALL_ID))
-                    .set(SipHeaderNames.USER_AGENT, "d-sip")
+                    .set(SipHeaderNames.USER_AGENT, SipHeaderValues.USER_AGENT)
                     .set(SipHeaderNames.WWW_AUTHENTICATE, wwwAuth)
                     .set(SipHeaderNames.CONTENT_LENGTH, SipHeaderValues.EMPTY_CONTENT_LENGTH);
         } else {
@@ -36,7 +36,7 @@ public class RegisterController implements HandlerController {
                     .set(SipHeaderNames.TO, headers.get(SipHeaderNames.TO) + ";tag=" + System.currentTimeMillis())
                     .set(SipHeaderNames.CSEQ, headers.get(SipHeaderNames.CSEQ))
                     .set(SipHeaderNames.CALL_ID, headers.get(SipHeaderNames.CALL_ID))
-                    .set(SipHeaderNames.USER_AGENT, "d-sip")
+                    .set(SipHeaderNames.USER_AGENT, SipHeaderValues.USER_AGENT)
                     .set(SipHeaderNames.CONTENT_LENGTH, SipHeaderValues.EMPTY_CONTENT_LENGTH);
             response.setStatus(SipResponseStatus.OK);
         }
