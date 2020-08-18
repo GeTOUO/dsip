@@ -1,16 +1,9 @@
-package com.dxp.sip.util;
+package com.dxp.sip.util
 
-import com.dxp.sip.bus.fun.HandlerController;
-import com.dxp.sip.bus.fun.controller.InviteController;
-import com.dxp.sip.bus.fun.controller.MessageController;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.Enumeration;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.io.File
+import java.io.IOException
+import java.net.URLDecoder
+import java.util.*
 
 /**
  * 包扫描
@@ -18,34 +11,29 @@ import java.util.Set;
  * @author carzy
  * @date 2020/8/14
  */
-public class ClassScanner {
-
+object ClassScanner {
     /**
      * 在文件夹中扫描包和类
      */
-    private static void doScanPackageClassesByFile(Set<Class<?>> classes, String packageName, String packagePath) throws ClassNotFoundException {
+    @Throws(ClassNotFoundException::class)
+    private fun doScanPackageClassesByFile(classes: MutableSet<Class<*>>, packageName: String, packagePath: String) {
         // 转为文件
-        File dir = new File(packagePath);
-        if (!dir.exists() || !dir.isDirectory()) {
-            return;
+        val dir = File(packagePath)
+        if (!dir.exists() || !dir.isDirectory) {
+            return
         }
 
         // 列出文件，进行过滤
-        File[] dirFiles = dir.listFiles();
-
-        if (null == dirFiles) {
-            return;
-        }
-
-        for (File file : dirFiles) {
-            if (file.isDirectory()) {
+        val dirFiles = dir.listFiles() ?: return
+        for (file in dirFiles) {
+            if (file.isDirectory) {
                 // 如果是目录，则递归
-                doScanPackageClassesByFile(classes, packageName + "." + file.getName(), file.getAbsolutePath());
+                doScanPackageClassesByFile(classes, packageName + "." + file.name, file.absolutePath)
             } else {
                 // 用当前类加载器加载 去除 fileName 的 .class 6 位
-                String className = file.getName().substring(0, file.getName().length() - 6);
-                Class<?> loadClass = Thread.currentThread().getContextClassLoader().loadClass(packageName + '.' + className);
-                classes.add(loadClass);
+                val className = file.name.substring(0, file.name.length - 6)
+                val loadClass = Thread.currentThread().contextClassLoader.loadClass("$packageName.$className")
+                classes.add(loadClass)
             }
         }
     }
@@ -55,28 +43,29 @@ public class ClassScanner {
      *
      * @return the set
      */
-    public static Set<Class<?>> doScanAllClasses(String packageName) throws IOException, ClassNotFoundException {
-        Set<Class<?>> classes = new LinkedHashSet<>();
+    @JvmStatic
+    @Throws(IOException::class, ClassNotFoundException::class)
+    fun doScanAllClasses(packageName: String): Set<Class<*>> {
+        var packages = packageName
+        val classes: MutableSet<Class<*>> = LinkedHashSet()
 
         // 如果最后一个字符是“.”，则去掉
-        if (packageName.endsWith(".")) {
-            packageName = packageName.substring(0, packageName.lastIndexOf('.'));
+        if (packages.endsWith(".")) {
+            packages = packages.substring(0, packages.lastIndexOf('.'))
         }
 
         // 将包名中的“.”换成系统文件夹的“/”
-        String basePackageFilePath = packageName.replace('.', '/');
-
-        Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources(basePackageFilePath);
+        val basePackageFilePath = packages.replace('.', '/')
+        val resources = Thread.currentThread().contextClassLoader.getResources(basePackageFilePath)
         while (resources.hasMoreElements()) {
-            URL resource = resources.nextElement();
-            String protocol = resource.getProtocol();
-            if ("file".equals(protocol)) {
-                String filePath = URLDecoder.decode(resource.getFile(), "UTF-8");
+            val resource = resources.nextElement()
+            val protocol = resource.protocol
+            if ("file" == protocol) {
+                val filePath = URLDecoder.decode(resource.file, "UTF-8")
                 // 扫描文件夹中的包和类
-                doScanPackageClassesByFile(classes, packageName, filePath);
+                doScanPackageClassesByFile(classes, packages, filePath)
             }
         }
-
-        return classes;
+        return classes
     }
 }
