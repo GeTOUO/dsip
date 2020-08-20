@@ -1,14 +1,13 @@
-package com.dxp.sip.bus.handler;
+package com.dxp.sip.bus.handler
 
-import com.dxp.sip.util.CharsetUtils;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufHolder;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.logging.ByteBufFormat;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
-
-import static io.netty.util.internal.StringUtil.NEWLINE;
+import com.dxp.sip.util.CharsetUtils
+import io.netty.buffer.ByteBuf
+import io.netty.buffer.ByteBufHolder
+import io.netty.channel.ChannelHandlerContext
+import io.netty.handler.logging.ByteBufFormat
+import io.netty.handler.logging.LogLevel
+import io.netty.handler.logging.LoggingHandler
+import io.netty.util.internal.StringUtil
 
 /**
  * 编码问题
@@ -16,91 +15,89 @@ import static io.netty.util.internal.StringUtil.NEWLINE;
  * @author carzy
  * @date 2020/8/14
  */
-public class GbLoggingHandler extends LoggingHandler {
+class GbLoggingHandler(level: LogLevel?) : LoggingHandler(level, ByteBufFormat.HEX_DUMP) {
 
-    public GbLoggingHandler(LogLevel level) {
-        super(level, ByteBufFormat.HEX_DUMP);
-    }
-
-    @Override
-    protected String format(ChannelHandlerContext ctx, String eventName, Object arg) {
-        if (arg instanceof ByteBuf) {
-            return formatByteBuf(ctx, eventName, (ByteBuf) arg);
-        } else if (arg instanceof ByteBufHolder) {
-            return formatByteBufHolder(ctx, eventName, (ByteBufHolder) arg);
-        } else {
-            return formatSimple(ctx, eventName, arg);
+    override fun format(ctx: ChannelHandlerContext, eventName: String, arg: Any): String {
+        return when (arg) {
+            is ByteBuf -> {
+                formatByteBuf(ctx, eventName, arg)
+            }
+            is ByteBufHolder -> {
+                formatByteBufHolder(ctx, eventName, arg)
+            }
+            else -> {
+                formatSimple(ctx, eventName, arg)
+            }
         }
     }
 
-    @Override
-    protected String format(ChannelHandlerContext ctx, String eventName) {
-        String chStr = ctx.channel().id().asShortText();
-        return chStr + ' ' + eventName;
+    override fun format(ctx: ChannelHandlerContext, eventName: String): String {
+        val chStr = ctx.channel().id().asShortText()
+        return "$chStr $eventName"
     }
 
-    private String formatByteBuf(ChannelHandlerContext ctx, String eventName, ByteBuf msg) {
-        String chStr = ctx.channel().id().asShortText();
-        int length = msg.readableBytes();
-        if (length == 0) {
-            return chStr + ' ' + eventName + ": 0B";
+    private fun formatByteBuf(ctx: ChannelHandlerContext, eventName: String, msg: ByteBuf): String {
+        val chStr = ctx.channel().id().asShortText()
+        val length = msg.readableBytes()
+        return if (length == 0) {
+            "$chStr $eventName: 0B"
         } else {
-            int outputLength = chStr.length() + 1 + eventName.length() + 2 + 10 + 1;
+            var outputLength = chStr.length + 1 + eventName.length + 2 + 10 + 1
             if (byteBufFormat() == ByteBufFormat.HEX_DUMP) {
-                int rows = length / 16 + (length % 15 == 0? 0 : 1) + 4;
-                int hexDumpLength = 2 + rows * 80;
-                outputLength += hexDumpLength;
+                val rows = length / 16 + (if (length % 15 == 0) 0 else 1) + 4
+                val hexDumpLength = 2 + rows * 80
+                outputLength += hexDumpLength
             }
-            StringBuilder buf = new StringBuilder(outputLength);
-            buf.append(chStr).append(' ').append(eventName).append(": ").append(length).append('B');
+            val buf = StringBuilder(outputLength)
+            buf.append(chStr).append(' ').append(eventName).append(": ").append(length).append('B')
             if (byteBufFormat() == ByteBufFormat.HEX_DUMP) {
-                buf.append(NEWLINE);
-                appendPrettyHexDump(buf, msg);
+                buf.append(StringUtil.NEWLINE)
+                appendPrettyHexDump(buf, msg)
             }
-
-            return buf.toString();
+            buf.toString()
         }
     }
 
     /**
-     * Generates the default log message of the specified event whose argument is a {@link ByteBufHolder}.
+     * Generates the default log message of the specified event whose argument is a [ByteBufHolder].
      */
-    private String formatByteBufHolder(ChannelHandlerContext ctx, String eventName, ByteBufHolder msg) {
-        String chStr = ctx.channel().id().asShortText();
-        String msgStr = msg.toString();
-        ByteBuf content = msg.content();
-        int length = content.readableBytes();
-        if (length == 0) {
-            return chStr + ' ' + eventName + ", " + msgStr + ", 0B";
+    private fun formatByteBufHolder(ctx: ChannelHandlerContext, eventName: String, msg: ByteBufHolder): String {
+        val chStr = ctx.channel().id().asShortText()
+        val msgStr = msg.toString()
+        val content = msg.content()
+        val length = content.readableBytes()
+        return if (length == 0) {
+            "$chStr $eventName, $msgStr, 0B"
         } else {
-            int outputLength = chStr.length() + 1 + eventName.length() + 2 + msgStr.length() + 2 + 10 + 1;
+            var outputLength = chStr.length + 1 + eventName.length + 2 + msgStr.length + 2 + 10 + 1
             if (byteBufFormat() == ByteBufFormat.HEX_DUMP) {
-                int rows = length / 16 + (length % 15 == 0? 0 : 1) + 4;
-                int hexDumpLength = 2 + rows * 80;
-                outputLength += hexDumpLength;
+                val rows = length / 16 + (if (length % 15 == 0) 0 else 1) + 4
+                val hexDumpLength = 2 + rows * 80
+                outputLength += hexDumpLength
             }
-            StringBuilder buf = new StringBuilder(outputLength);
+            val buf = StringBuilder(outputLength)
             buf.append(chStr).append(' ').append(eventName).append(": ")
-                    .append(msgStr).append(", ").append(length).append('B');
+                    .append(msgStr).append(", ").append(length).append('B')
             if (byteBufFormat() == ByteBufFormat.HEX_DUMP) {
-                buf.append(NEWLINE);
-                appendPrettyHexDump(buf, content);
+                buf.append(StringUtil.NEWLINE)
+                appendPrettyHexDump(buf, content)
             }
-
-            return buf.toString();
+            buf.toString()
         }
     }
 
-    /**
-     * Generates the default log message of the specified event whose argument is an arbitrary object.
-     */
-    private static String formatSimple(ChannelHandlerContext ctx, String eventName, Object msg) {
-        String chStr = ctx.channel().id().asShortText();
-        String msgStr = String.valueOf(msg);
-        return chStr + ' ' + eventName + ": " + msgStr;
-    }
+    companion object {
+        /**
+         * Generates the default log message of the specified event whose argument is an arbitrary object.
+         */
+        private fun formatSimple(ctx: ChannelHandlerContext, eventName: String, msg: Any): String {
+            val chStr = ctx.channel().id().asShortText()
+            val msgStr = msg.toString()
+            return "$chStr $eventName: $msgStr"
+        }
 
-    public static void appendPrettyHexDump(StringBuilder dump, ByteBuf buf) {
-        dump.append(buf.toString(CharsetUtils.GB_2313));
+        fun appendPrettyHexDump(dump: StringBuilder, buf: ByteBuf) {
+            dump.append(buf.toString(CharsetUtils.GB_2313))
+        }
     }
 }

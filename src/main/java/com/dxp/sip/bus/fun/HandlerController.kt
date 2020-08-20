@@ -1,17 +1,17 @@
-package com.dxp.sip.bus.fun;
+package com.dxp.sip.bus.`fun`
 
-import com.dxp.sip.codec.sip.*;
-import io.netty.channel.Channel;
-import org.dom4j.DocumentException;
-
+import com.dxp.sip.codec.sip.FullSipRequest
+import com.dxp.sip.codec.sip.SipMethod
+import io.netty.channel.Channel
+import org.dom4j.DocumentException
 
 /**
  * @author carzy
  * @date 2020/8/14
  */
-public interface HandlerController {
+interface HandlerController {
 
-    SipMethod method();
+    fun method(): SipMethod
 
     /**
      * 处理具体的 sip 请求
@@ -20,6 +20,6 @@ public interface HandlerController {
      * @param channel 通道
      * @throws DocumentException 解析XML失败.
      */
-    void handler(FullSipRequest request, Channel channel) throws DocumentException;
-
+    @Throws(DocumentException::class)
+    fun handler(request: FullSipRequest, channel: Channel)
 }

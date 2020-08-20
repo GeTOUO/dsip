@@ -1,53 +1,50 @@
-package com.dxp.sip.bus.fun;
+package com.dxp.sip.bus.`fun`
 
-import com.dxp.sip.codec.sip.*;
-import com.dxp.sip.util.SendErrorResponseUtil;
-import io.netty.channel.Channel;
-import io.netty.channel.DefaultEventLoopGroup;
-import io.netty.channel.EventLoopGroup;
-import io.netty.util.concurrent.DefaultThreadFactory;
-import org.dom4j.DocumentException;
+import com.dxp.sip.codec.sip.FullSipRequest
+import com.dxp.sip.util.SendErrorResponseUtil.err400
+import com.dxp.sip.util.SendErrorResponseUtil.err405
+import com.dxp.sip.util.SendErrorResponseUtil.err500
+import io.netty.channel.Channel
+import io.netty.channel.DefaultEventLoopGroup
+import io.netty.channel.EventLoopGroup
+import io.netty.util.concurrent.DefaultThreadFactory
+import org.dom4j.DocumentException
 
 /**
  * @author carzy
  * @date 2020/8/14
  */
-public class DispatchHandler {
+class DispatchHandler private constructor() {
 
     /**
      * 异步执行处理函数， 不阻塞work线程。
      */
-    private final EventLoopGroup loopGroup = new DefaultEventLoopGroup(new DefaultThreadFactory("dis-han"));
+    private val loopGroup: EventLoopGroup = DefaultEventLoopGroup(DefaultThreadFactory("dis-han"))
 
-    private DispatchHandler() {
+    fun handler(request: FullSipRequest, channel: Channel) {
+        request.retain()
+        loopGroup.submit { handler0(request, channel) }
     }
 
-    public static final DispatchHandler INSTANCE = new DispatchHandler();
-
-    public void handler(FullSipRequest request, Channel channel) {
-        request.retain();
-        loopGroup.submit(() -> {
-            handler0(request, channel);
-        });
-    }
-
-    private void handler0(FullSipRequest request, Channel channel) {
+    private fun handler0(request: FullSipRequest, channel: Channel) {
         try {
-            final SipMethod method = request.method();
-            final HandlerController controller = DispatchHandlerContext.method(method);
+            val method = request.method()
+            val controller = DispatchHandlerContext.method(method)
             if (controller == null) {
-                SendErrorResponseUtil.err405(request, channel);
+                err405(request, channel)
             } else {
-                controller.handler(request, channel);
+                controller.handler(request, channel)
             }
-        } catch (DocumentException e) {
-            SendErrorResponseUtil.err400(request, channel, "xml err");
-        } catch (Exception e) {
-            SendErrorResponseUtil.err500(request, channel, e.getMessage());
+        } catch (e: DocumentException) {
+            err400(request, channel, "xml err")
+        } catch (e: Exception) {
+            err500(request, channel, e.message!!)
         } finally {
-            request.release();
+            request.release()
         }
     }
 
-
+    companion object {
+        val INSTANCE = DispatchHandler()
+    }
 }
